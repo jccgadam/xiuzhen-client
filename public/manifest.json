@@ -1,0 +1,10 @@
+{
+  "name": "修真之路",
+  "short_name": "修真",
+  "description": "修真之路 · 网页版",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1217",
+  "theme_color": "#1e2a32",
+  "orientation": "portrait-primary"
+}

@@ -1,0 +1,394 @@
+:root{
+  --cin-fg: rgba(236,232,222,0.92);
+  --cin-dim: rgba(236,232,222,0.62);
+  --cin-shadow: rgba(0,0,0,0.55);
+
+  --cin-glass: rgba(7,14,20,0.22);
+  --cin-glass-2: rgba(10, 18, 25, 0.15);
+  --cin-border: rgba(236,232,222,0.10);
+
+  --cin-vignette-strong: rgba(0,0,0,0.78);
+  --cin-vignette-mid: rgba(0,0,0,0.38);
+
+  --cin-safe-top: env(safe-area-inset-top);
+  --cin-safe-bottom: env(safe-area-inset-bottom);
+  --cin-safe-left: env(safe-area-inset-left);
+  --cin-safe-right: env(safe-area-inset-right);
+}
+
+.cinematic-scene{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;            /* ✅ 避免左右出界 */
+  background: #07131c;
+  transition: transform 300ms ease, filter 300ms ease;
+}
+
+.cinematic-scene.system-active {
+  transform: scale(0.98);
+  filter: blur(1.5px);
+}
+
+/* ===== 环境统一合成层（让前景道具吃进月夜光色） ===== */
+.cinematic-scene::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index: 12; /* 在背景之上、道具之下（props 是 18） */
+
+  background:
+    radial-gradient(120% 90% at 55% 32%,
+      rgba(170,195,255,0.06) 0%,
+      rgba(0,0,0,0.00) 45%,
+      rgba(0,0,0,0.18) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* 横屏：确保场景与背景填满视口 */
+@media (orientation: landscape) and (max-width: 859px) {
+  .cinematic-scene {
+    min-height: 100vh;
+  }
+}
+
+/* ===== 背景（cover + KenBurns） ===== */
+.cinematic-bg{
+  position: absolute;
+  inset: 0;
+  background: #07131c;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.cinematic-bg::before{
+  content:"";
+  position:absolute;
+  inset: 0;                    /* ✅ 不要 inset:-2%，避免横向溢出 */
+  background-image: var(--bg-url);
+  background-size: cover;       /* ✅ cover 防拉伸 */
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1.04);
+  filter: saturate(0.95) contrast(1.06) brightness(0.92);
+  animation: cin-kenburns 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.cinematic-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 35%, rgba(0,0,0,0.10) 0%, var(--cin-vignette-mid) 62%, var(--cin-vignette-strong) 100%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.016) 0px, rgba(255,255,255,0.016) 1px, rgba(0,0,0,0.00) 2px, rgba(0,0,0,0.00) 4px);
+}
+
+/* 轻微镜头运动 */
+@keyframes cin-kenburns{
+  from { transform: scale(1.04) translate3d(0,0,0); }
+  to   { transform: scale(1.10) translate3d(-1.2%, -0.8%, 0); }
+}
+
+/* ===== 顶部 HUD ===== */
+.cinematic-hud{
+  position:absolute;
+  top: max(12px, var(--cin-safe-top));
+  left: max(14px, var(--cin-safe-left));
+  right: max(14px, var(--cin-safe-right));
+  z-index: 20;
+
+  display:flex;
+  justify-content: space-between;
+  align-items:flex-start;
+  pointer-events:none;
+}
+
+.cinematic-hud-left{
+  color: var(--cin-fg);
+  text-shadow: 0 2px 18px var(--cin-shadow);
+  letter-spacing: 0.4px;
+}
+
+.cinematic-place{
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.cinematic-sep{ opacity:0.75; font-weight: 450; }
+.cinematic-time{ opacity:0.95; font-weight: 520; }
+
+.cinematic-meta{
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--cin-dim);
+  font-weight: 450;
+}
+
+.cinematic-hud-right{ pointer-events:auto; }
+
+.cinematic-icon-btn{
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(7,14,20,0.22);
+  border: 1px solid rgba(236,232,222,0.10);
+  color: rgba(236,232,222,0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor:pointer;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+.cinematic-icon-btn:active{
+  transform: translateY(1px);
+  background: rgba(7,14,20,0.30);
+}
+
+/* ===== 洞府：物件层（草席 + 蒲团） ===== */
+.cinematic-props{
+  position:absolute;
+  inset:0;
+  z-index: 18;
+  pointer-events: none; /* 只让蒲团按钮可点 */
+}
+
+/* 草席（透明图） */
+.prop-mat{
+  position: absolute;
+
+  /* ✅ 这组值适配你洞府图构图（需要你微调百分比） */
+  left: 18%;
+  top: 62%;
+  width: 64%;
+  height: auto;
+
+  opacity: 0.95;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+
+  filter: brightness(0.95) contrast(1.05);
+  transform: translateZ(0);
+}
+
+/* 入定状态：草席也微亮一点（但克制） */
+.prop-mat.is-meditating{
+  filter: brightness(1.04) contrast(1.03);
+}
+
+/* 轻提示：不做 hover，只在未打坐时显示 */
+.prop-hint{
+  position:absolute;
+  left: 50%;
+  top: calc(64.5% + 18%);
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(7,14,20,0.22);
+  border: 1px solid rgba(236,232,222,0.10);
+  color: rgba(236,232,222,0.70);
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events:none;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.55);
+}
+
+/* ===== 任务浮层（不切割画面） ===== */
+.cinematic-task{
+  position:absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + var(--cin-safe-bottom));
+  z-index: 30;
+  pointer-events:auto;
+}
+
+.cinematic-task-row{
+  border-radius: 16px;
+  padding: 12px 12px;
+  background: rgba(7, 14, 20, 0.22);
+  border: 1px solid rgba(236,232,222,0.10);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cinematic-task-title{
+  color: rgba(236,232,222,0.88);
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.35);
+}
+
+.cinematic-task-actions{
+  display:flex;
+  gap: 10px;
+}
+
+.cinematic-task-btn{
+  flex:1;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(236,232,222,0.14);
+  background: rgba(7,14,20,0.20);
+  color: rgba(236,232,222,0.92);
+  cursor:pointer;
+}
+
+.cinematic-task-btn:active{
+  transform: translateY(1px);
+  background: rgba(7,14,20,0.28);
+}
+
+.cinematic-task-btn-dim{
+  color: rgba(236,232,222,0.72);
+  border-color: rgba(236,232,222,0.10);
+}
+
+.cinematic-task-choices{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 任务选项按钮复用 */
+.cinematic-choice{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+
+  padding: 12px 10px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(236,232,222,0.10);
+  background: rgba(10, 18, 25, 0.15);
+  color: rgba(236,232,222,0.92);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  cursor:pointer;
+  user-select:none;
+  touch-action: manipulation;
+}
+
+.cinematic-choice:active{
+  transform: translateY(1px);
+  background: rgba(10, 18, 25, 0.25);
+}
+
+.cinematic-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 0 6px rgba(255,255,255,0.28);
+  flex-shrink: 0;
+}
+
+.cinematic-choice-text{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 小屏微调 */
+@media (max-width: 390px){
+  .prop-mat{ left: 14%; width: 65%; }
+  .prop-cushion-btn{ left: 30%; width: 40%; }
+}
+
+/* ===== 蒲团（融合版） ===== */
+.prop-cushion-btn{
+  position: absolute;
+
+  /* 位置自己微调 */
+  left: 30%;
+  top: 80%;
+  transform: translateX(-50%);
+
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  width: auto;
+  height: auto;
+
+  display: inline-block;
+
+  /* ✅ 让伪元素阴影/混合更稳定 */
+  isolation: isolate;
+  pointer-events: auto; /* 按你原逻辑：仅蒲团可点 */
+}
+
+/* ✅ 接触阴影：解决“贴上去/漂浮” */
+.prop-cushion-btn::after{
+  content:"";
+  position:absolute;
+  left: 14%;
+  right: 14%;
+  bottom: -10px;
+  height: 20px;
+  background: radial-gradient(ellipse at center,
+    rgba(0,0,0,0.55) 0%,
+    rgba(0,0,0,0.22) 48%,
+    rgba(0,0,0,0.0) 76%);
+  filter: blur(8px);
+  opacity: 0.95;
+  pointer-events:none;
+  z-index: -1;
+}
+
+.prop-cushion{
+  width: clamp(90px, 22vmin, 200px);
+  height: auto;
+  display: block;
+
+  /* ✅ 关键：降低贴图亮度/饱和，匹配洞府的冷暗调 */
+  filter: brightness(0.86) contrast(0.93) saturate(0.88)
+      drop-shadow(0 16px 24px rgba(0,0,0,0.42));
+}
+.prop-cushion::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  /* 右上偏亮，左下偏暗 */
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.00) 35%,
+    rgba(0,0,0,0.08) 100%
+  );
+
+  mix-blend-mode: multiply;
+}
+/* 点击反馈：不要过强发光，只要更“实” */
+.prop-cushion-btn:active .prop-cushion{
+  transform: scale(0.985);
+  filter: brightness(0.84) contrast(0.95) saturate(0.88)
+    drop-shadow(0 18px 26px rgba(0,0,0,0.60));
+}
+
+/* 入定效果：保留微光，但更克制、更融入 */
+.prop-cushion-btn.is-meditating .prop-cushion{
+  animation: cushion-breathe 1.8s ease-in-out infinite;
+  filter:
+    brightness(0.90) contrast(0.96) saturate(0.90)
+    drop-shadow(0 18px 28px rgba(0,0,0,0.65))
+    drop-shadow(0 0 14px rgba(255,220,160,0.22));
+}
+
+@keyframes cushion-breathe{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.03); }
+}

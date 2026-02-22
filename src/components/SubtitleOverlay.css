@@ -1,0 +1,84 @@
+:root{
+  --sub-fg: rgba(236,232,222,0.92);
+  --sub-dim: rgba(236,232,222,0.62);
+  --sub-shadow: rgba(0,0,0,0.60);
+
+  --sub-fog-strong: rgba(5,12,18,0.82);
+  --sub-fog-mid: rgba(5,12,18,0.36);
+  --sub-fog-none: rgba(5,12,18,0.00);
+}
+
+.subtitle-wrap{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 20;
+  pointer-events: none;
+}
+
+.subtitle-wrap.is-hidden{
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.subtitle-wrap.is-visible{
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+/* 底部雾化渐变 */
+.subtitle-fog{
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42vh;
+  background: linear-gradient(
+    to top,
+    var(--sub-fog-strong) 0%,
+    var(--sub-fog-mid) 55%,
+    var(--sub-fog-none) 100%
+  );
+}
+
+/* 字幕文本容器 */
+.subtitle-text{
+  position: relative;
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.subtitle-line{
+  color: var(--sub-fg);
+  font-size: 18px;
+  line-height: 1.45;
+  letter-spacing: 0.4px;
+  text-shadow: 0 3px 18px var(--sub-shadow);
+  font-weight: 520;
+}
+
+.subtitle-hint{
+  margin-top: 6px;
+  color: var(--sub-dim);
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.55);
+}
+
+/* 小屏幕稍微降字号 */
+@media (max-width: 360px){
+  .subtitle-line{ font-size: 16px; }
+}
+
+/* 横屏：字幕区域高度适配 */
+@media (orientation: landscape) {
+  .subtitle-fog {
+    height: 55%;
+  }
+}

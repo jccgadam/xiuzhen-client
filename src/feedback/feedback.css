@@ -1,0 +1,97 @@
+/* 叙事反馈层：不拦截点击 */
+.feedback-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 80; /* 要高于元素与背景，低于极少数 modal 也行 */
+  }
+  
+  /* 单条反馈容器 */
+  .feedback-bubble {
+    position: absolute;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    letter-spacing: var(--letter-spacing);
+    line-height: var(--line-height);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+  
+    /* 统一的“呼吸式出现”动画：淡入 -> 停留 -> 淡出 */
+    animation-name: feedback-fade;
+    animation-duration: calc(var(--fade-in-ms) + var(--stay-ms) + var(--fade-out-ms));
+    animation-timing-function: ease;
+    animation-fill-mode: both;
+  }
+  
+  /* 每行 */
+  .feedback-line {
+    margin-top: 6px;
+    font-size: 18px;
+    opacity: 0.98;
+  }
+  .feedback-line:first-child {
+    margin-top: 0;
+  }
+  
+  /* 预设：存在感差异（只调字体/位移，不加黑底） */
+  .feedback-whisper .feedback-line {
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  
+  .feedback-breath .feedback-line {
+    font-size: 18px;
+    opacity: 0.92;
+  }
+  
+  .feedback-float {
+    animation-name: feedback-float;
+  }
+  
+  .feedback-impact .feedback-line {
+    font-size: 22px;
+    opacity: 0.98;
+  }
+  
+  /* 动画：淡入停留淡出 */
+  @keyframes feedback-fade {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+      filter: blur(0.2px);
+    }
+    /* fade in 结束（按比例近似） */
+    18% {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    /* stay 期间 */
+    82% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+  
+  /* float：更像“心念上浮” */
+  @keyframes feedback-float {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    18% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    82% {
+      opacity: 1;
+      transform: translateY(-8px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-14px);
+    }
+  }

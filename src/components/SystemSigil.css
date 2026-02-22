@@ -1,0 +1,47 @@
+/* SystemSigil — 入内观触发器，波纹扩散 */
+
+.system-sigil {
+  position: absolute;
+  top: max(18px, var(--cin-safe-top, 18px));
+  right: max(18px, var(--cin-safe-right, 18px));
+  z-index: 50;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(236, 232, 222, 0.14);
+  background: rgba(7, 14, 20, 0.18);
+
+  color: rgba(236, 232, 222, 0.85);
+  font-size: 20px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  overflow: hidden;
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+}
+
+.sigil-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.system-sigil.is-rippling .sigil-ripple {
+  animation: sigil-wave 320ms ease-out forwards;
+}
+
+@keyframes sigil-wave {
+  0% {
+    box-shadow: 0 0 0 0 rgba(180, 220, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 60px rgba(180, 220, 255, 0);
+  }
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a232c"/>
+      <stop offset="100%" style="stop-color:#0a0d10"/>
+    </linearGradient>
+  </defs>
+  <rect fill="url(#bg)" width="400" height="600"/>
+  <text x="200" y="280" fill="#3a4a5a" font-size="48" text-anchor="middle" font-family="serif">修</text>
+  <text x="200" y="340" fill="#3a4a5a" font-size="48" text-anchor="middle" font-family="serif">真</text>
+  <text x="200" y="400" fill="#3a4a5a" font-size="48" text-anchor="middle" font-family="serif">世</text>
+  <text x="200" y="460" fill="#3a4a5a" font-size="48" text-anchor="middle" font-family="serif">界</text>
+</svg>
