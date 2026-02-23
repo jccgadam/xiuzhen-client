@@ -1,6 +1,6 @@
 import React from 'react'
 import { CushionHotspot } from '../components/hotspots/CushionHotspot'
-import { SceneExitGlow } from '../components/hotspots/SceneExitGlow'
+import { ExitElement } from '../scene/elements/ExitElement'
 
 /**
  * 元素类型 -> 组件 注册表
@@ -8,18 +8,17 @@ import { SceneExitGlow } from '../components/hotspots/SceneExitGlow'
  */
 const REGISTRY = {
   cushion: CushionHotspot,
-  exitGlow: SceneExitGlow,
+  exit: ExitElement,
 }
 
 export function getElementComponent(type) {
-  return REGISTRY[type] ?? null
+  return REGISTRY[type];
 }
-
 /**
  * 根据配置渲染场景元素
  */
 export function renderSceneElement(elementConfig, context) {
-  const Component = getElementComponent(elementConfig.type)
+  const Component = getElementComponent(elementConfig.type);
   if (!Component) return null
   return <Component key={elementConfig.id} config={elementConfig} context={context} />
 }

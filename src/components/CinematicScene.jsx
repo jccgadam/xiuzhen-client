@@ -46,7 +46,7 @@ export function CinematicScene({
 
       <CinematicHUD loc={loc} time={time} player={player} />
       {(scene.elements ?? []).map((el) => renderSceneElement(el, elementContext))}
-      {onOpenSystem && <SystemSigil onActivate={onOpenSystem} />}
+      {!systemActive && onOpenSystem && <SystemSigil onActivate={onOpenSystem} />}
 
       {current && <SubtitleOverlay visible={visible} lines={current.lines} hint={current.hint} />}
 

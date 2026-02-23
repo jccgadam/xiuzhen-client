@@ -90,7 +90,17 @@ export function resolveVisual(event: NarrativeEvent, theme: FeedbackTheme): Visu
             const days = Number(event.data?.days ?? event.data?.day ?? 1);
             return { ...base, lines: [days > 1 ? `光阴流转（${days}日）。` : "光阴流转。"] };
         }
-
+        case NARRATIVE_TYPES.TRAVEL_START: {
+            const label = (event.data?.label as string | undefined) ?? "离开";
+            return {
+              ...base,
+              placement: "leftBottom",     // 跟蒲团一致
+              animation: "whisper",
+              ttlMs: Math.max(1600, theme.defaultTtlMs - 600),
+              variant: "travel",
+              lines: [label],
+            };
+        } 
         case NARRATIVE_TYPES.ERROR:
         default: {
             return { ...base, lines: ["……"] };

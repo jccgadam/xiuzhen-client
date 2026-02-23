@@ -1,0 +1,57 @@
+.scene-exit{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    pointer-events: auto;
+    z-index: 19;
+  }
+  
+  .scene-exit:active{
+    transform: translate(-50%, -50%) scale(0.985);
+  }
+  
+  .scene-exit-core{
+    position:absolute;
+    inset: 22%;
+    border-radius: 999px;
+    background: rgba(236,232,222,0.10);
+  }
+  
+  .scene-exit-ring{
+    position:absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(236,232,222,0.16);
+    box-shadow:
+      0 0 28px rgba(180,220,255, calc(var(--exit-glow, 0.6) * 0.35)),
+      0 0 60px rgba(180,220,255, calc(var(--exit-glow, 0.6) * 0.18)),
+      inset 0 0 30px rgba(255,255,255, 0.05);
+    background:
+      radial-gradient(55% 55% at 50% 45%,
+        rgba(180,220,255, calc(var(--exit-glow, 0.6) * 0.22)) 0%,
+        rgba(0,0,0,0) 70%);
+  }
+  
+  .scene-exit-label{
+    position:absolute;
+    left: 50%;
+    top: 110%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+  
+    color: rgba(236,232,222,0.78);
+    background: rgba(7,14,20,0.18);
+    border: 1px solid rgba(236,232,222,0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-shadow: 0 1px 10px rgba(0,0,0,0.55);
+    pointer-events: none;
+  }

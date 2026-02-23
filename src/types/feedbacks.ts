@@ -69,6 +69,7 @@ export const NARRATIVE_TYPES = {
 
   // fallback
   ERROR: "error",
+  TRAVEL_START: "travel_start", // 离开/出发
 } as const;
 
 /**

@@ -1,76 +1,83 @@
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
 import "./SystemScreen.css";
 
-export type SystemRightPane = "bag" | "memory";
+export type SystemTabId = "bag" | "memory" | "manual" | "technique";
 
-const RIGHT_TITLES: Record<SystemRightPane, string> = {
-  bag: "行囊",
-  memory: "回忆",
+export type SystemTab = {
+  id: SystemTabId;
+  icon: React.ReactNode;
+  ariaLabel: string;
 };
 
 export function SystemScreen({
   open,
-  titleLeft = "人物",
-  rightPane,
-  onRightPaneChange,
   onClose,
   left,
+  activeTab,
+  onTabChange,
   right,
+  tabs,
 }: {
   open: boolean;
-  titleLeft?: string;
-  rightPane: SystemRightPane;
-  onRightPaneChange: (v: SystemRightPane) => void;
   onClose: () => void;
-  left: React.ReactNode;
+  left?: React.ReactNode;
+  activeTab: SystemTabId;
+  onTabChange: (id: SystemTabId) => void;
   right: React.ReactNode;
+  tabs: SystemTab[];
 }) {
+  const hasLeft = !!left;
 
-  const titleRight = RIGHT_TITLES[rightPane];
+  const rootClass = useMemo(() => `sys-screen ${open ? "is-open" : ""}`, [open]);
+  const layoutClass = useMemo(
+    () => `sys-layout ${hasLeft ? "two-pane" : "one-pane"}`,
+    [hasLeft]
+  );
+
   return (
-    <div
-      className={`sys-screen ${open ? "is-open" : ""}`}
-      role="dialog"
-      aria-label="系统界面"
-      aria-hidden={!open}
-    >
+    <div className={rootClass} role="dialog" aria-label="内观" aria-hidden={!open}>
       <div className="sys-veil" onClick={onClose} aria-hidden="true" />
 
       <div className="sys-shell" onClick={(e) => e.stopPropagation()}>
         <header className="sys-topbar">
-          <button className="sys-close tap" onClick={onClose} aria-label="关闭">
-            ×
-          </button>
+          <div className="sys-topbar-left" aria-label="系统入口">
+            <div className="sys-tabs" role="tablist" aria-label="切换面板">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`sys-icon tap ${activeTab === t.id ? "is-active" : ""}`}
+                  onClick={() => onTabChange(t.id)}
+                  role="tab"
+                  aria-selected={activeTab === t.id}
+                  aria-label={t.ariaLabel}
+                  title={t.ariaLabel}
+                >
+                  {t.icon}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="sys-topbar-right">
+            <button className="sys-close tap" onClick={onClose} aria-label="关闭" title="关闭">
+              ×
+            </button>
+          </div>
         </header>
 
-        <div className="sys-layout">
-          <section className="sys-pane sys-pane-left" aria-label={titleLeft}>
-            <div className="sys-pane-body">{left}</div>
-          </section>
+        <div className={layoutClass}>
+          {hasLeft && (
+            <section className="sys-pane sys-pane-left" aria-label="人物与功法（左）">
+              <div className="sys-pane-scroll">{left}</div>
+            </section>
+          )}
 
-          <section className="sys-pane sys-pane-right" aria-label={titleRight}>
-            <div className="sys-pane-head sys-pane-head-right">
-              <div className="sys-tabs" role="tablist" aria-label="内观切换">
-                <button
-                  className={`sys-tab tap ${rightPane === "bag" ? "is-active" : ""}`}
-                  onClick={() => onRightPaneChange("bag")}
-                  role="tab"
-                  aria-selected={rightPane === "bag"}
-                >
-                  行囊
-                </button>
-                <button
-                  className={`sys-tab tap ${rightPane === "memory" ? "is-active" : ""}`}
-                  onClick={() => onRightPaneChange("memory")}
-                  role="tab"
-                  aria-selected={rightPane === "memory"}
-                >
-                  回忆
-                </button>
-              </div>
-            </div>
-
-            <div className="sys-pane-body">{right}</div>
+          <section
+            className={`sys-pane ${hasLeft ? "sys-pane-right" : "sys-pane-full"}`}
+            aria-label="内容（右/全屏）"
+          >
+            <div className="sys-pane-scroll">{right}</div>
           </section>
         </div>
       </div>

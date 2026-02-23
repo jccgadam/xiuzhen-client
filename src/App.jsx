@@ -1,194 +1,71 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
-import './index.css'
-import { SceneProvider } from './contexts/SceneContext'
-import { CinematicScene } from './components/CinematicScene'
-import { FeedbackProvider } from './feedback/feedbackContext'
-import { SystemScreen } from './system/SystemScreen'
-import { getSceneConfig } from './scene/sceneConfig'
-import {
-  ProfilePanel,
-  BagPanel,
-  MemoryPanel,
-} from './system/panels/SystemScreenPanels'
+import { useMemo, useState, useCallback } from "react";
+import "./index.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? ''
+import { GameProvider, useGame } from "./game/GameContext";
+import { FeedbackProvider } from "./feedback/feedbackContext";
 
-function uid() {
-    return crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
+import { SceneProvider } from "./contexts/SceneContext";
+import { CinematicScene } from "./components/CinematicScene";
+import { resolveSceneRef } from "./scene/sceneMachine";
+import { SystemScreenContainer } from "./system/SystemScreenContainer";
+/**
+ * App 只负责挂 Provider + 组织布局
+ * - 不放 API（数据层未来单独做）
+ * - 不放回忆面板（你说已经在 layout 里）
+ */
+export default function App() {
+  return (
+    <GameProvider>
+      <FeedbackProvider>
+        <AppInner />
+      </FeedbackProvider>
+    </GameProvider>
+  );
 }
 
-export default function App() {
-    const [player, setPlayer] = useState(null)
-    const [logs, setLogs] = useState([])
-    const [loading, setLoading] = useState(false)
+function AppInner() {
+  const { state } = useGame();
+  const [systemActive, setSystemActive] = useState(false);
+  // ✅ 暂时不连后端：player 先留空（或做一个 mock）
+  const [player] = useState(null);
+  const [systemOpen, setSystemOpen] = useState(false);
+  const openSystem = useCallback(() => setSystemOpen(true), []);
+  const closeSystem = useCallback(() => setSystemOpen(false), []);
 
-    const [event, setEvent] = useState(null)
+  // ✅ 当前 sceneDef（含 name/bg/elements）
+  const scene = useMemo(
+    () => resolveSceneRef(state.world.currentScene),
+    [state.world.currentScene]
+  );
 
-    const [systemOpen, setSystemOpen] = useState(false)
-    const [rightPane, setRightPane] = useState('bag')
-    const [travelOpen, setTravelOpen] = useState(false)
-    const openSystem = useCallback(() => setSystemOpen(true), [])
-    const closeSystem = useCallback(() => setSystemOpen(false), [])
-    const openTravel = useCallback(() => setTravelOpen(true), [])
-    const closeTravel = useCallback(() => setTravelOpen(false), [])
+  // SceneProvider 仍用于 timeSlot/theme（location 用 scene.name）
+  const locationForUI = scene?.name ?? "—";
 
-    const appendLogs = useCallback((messages, isSystem = false) => {
-        if (!messages) return
-        const arr = Array.isArray(messages) ? messages : [messages]
-        setLogs(prev => [
-            ...prev,
-            ...arr.map(msg => ({ id: uid(), message: msg, isSystem })),
-        ])
-    }, [])
+  // 暂时 mock：CultivationLayout 需要 player / mainTechnique
+  const mockPlayer = player ?? {
+    name: "—",
+    realm: "—",
+    levelLabel: "—",
+    qiPercent: 0,
+  };
+  const mainTechnique = { name: "—", stage: "—", progress: 0 };
+  const techniques = [];
 
-    const createNewPlayer = async () => {
-        const name = '明月'
-        setLoading(true)
-        try {
-            const res = await fetch(`${API_BASE}/api/new`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, physique: 10, spirit: 10, insight: 10 }),
-            })
-            const data = await res.json()
-            if (data.player) setPlayer(data.player)
-            if (data.logs) appendLogs(data.logs, true)
-        } catch (e) {
-            appendLogs(`网络错误: ${e.message}`, true)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const fetchStatus = async () => {
-        try {
-            const res = await fetch(`${API_BASE}/api/status`)
-            const data = await res.json()
-            if (data.player) setPlayer(data.player)
-            else await createNewPlayer()
-        } catch (e) {
-            appendLogs([`无法连接服务器: ${e.message}`, '请确保后端已启动 (npm start)'], true)
-        }
-    }
-
-    const sendCommand = async (cmd) => {
-        const c = (cmd ?? '').trim()
-        if (!c) return
-        setLoading(true)
-        appendLogs(`> ${c}`)
-
-        try {
-            const res = await fetch(`${API_BASE}/api/command`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: c }),
-            })
-            const data = await res.json()
-
-            if (data.error) {
-                appendLogs(`错误: ${data.error}`, true)
-                return
-            }
-
-            if (data.logs) appendLogs(data.logs)
-            if (data.player) setPlayer(data.player)
-
-            if (data.event) setEvent(data.event)
-            else setEvent(null)
-
-            if (data.player && data.player.age >= data.player.lifespan) {
-                appendLogs('寿元耗尽，道化自然。游戏结束。', true)
-            }
-        } catch (e) {
-            appendLogs(`网络错误: ${e.message}`, true)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const chooseEvent = async (eventId, choiceIndex) => {
-        setLoading(true)
-        try {
-            const res = await fetch(`${API_BASE}/api/event_choose`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ eventId, choiceIndex }),
-            })
-            const data = await res.json()
-            if (data.logs) appendLogs(data.logs)
-            if (data.player) setPlayer(data.player)
-            setEvent(null)
-        } catch (e) {
-            appendLogs(`网络错误: ${e.message}`, true)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => { fetchStatus() }, [])
-
-    const location = player?.location ?? '洞府'
-
-    const activeTask = useMemo(() => {
-        if (!event) return null
-        return { eventId: event.eventId, choices: event.choices }
-    }, [event])
-
-    return (
-        <>
-            <FeedbackProvider>
-                <SceneProvider player={player} location={location}>
-                    <div className="game-container cinematic-root">
-                        <CinematicScene
-                            player={player}
-                            location={location}
-                            activeTask={activeTask}
-                            onTaskChoose={chooseEvent}
-                            taskDisabled={loading}
-                            onCommand={sendCommand}
-                            onExit={openTravel}
-                            onOpenSystem={openSystem}
-                            systemActive={systemOpen}
-                        />
-                    </div>
-                </SceneProvider>
-            </FeedbackProvider>
-
-            <SystemScreen
-                open={systemOpen}
-                rightPane={rightPane}
-                onRightPaneChange={setRightPane}
-                onClose={closeSystem}
-                left={<ProfilePanel player={player} />}
-                right={rightPane === 'bag' ? <BagPanel /> : <MemoryPanel logs={logs} />}
-            />
-
-            {travelOpen && (
-                <div className="cinematic-memory-overlay" role="dialog" aria-label="出行" onClick={closeTravel}>
-                    <div className="cinematic-memory-card" onClick={(e) => e.stopPropagation()}>
-                        <div className="cinematic-memory-head">
-                            <div className="cinematic-memory-title">出行</div>
-                            <button type="button" className="cinematic-memory-close tap" onClick={closeTravel} aria-label="关闭">×</button>
-                        </div>
-                        <div className="cinematic-memory-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                            {(getSceneConfig(location)?.exits ?? []).map((e) => (
-                                <button
-                                    key={e.to}
-                                    className="cinematic-choice"
-                                    disabled={loading}
-                                    onClick={() => {
-                                        closeTravel()
-                                        sendCommand(`go ${e.to}`)
-                                    }}
-                                >
-                                    {e.label ?? e.to}
-                                </button>
-                            ))}
-                            <button className="cinematic-choice cinematic-task-btn-dim" onClick={closeTravel} type="button">取消</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
-    )
+  return (
+    <SceneProvider player={player} location={locationForUI}>
+      <div className="game-container cinematic-root">
+        <SystemScreenContainer open={systemOpen} onClose={closeSystem} />
+        <CinematicScene
+          player={player}
+          location={locationForUI}
+          activeTask={null}
+          onTaskChoose={() => {}}
+          taskDisabled={false}
+          onOpenSystem={openSystem}
+          systemActive={systemActive}
+          onCommand={() => {}}
+        />
+      </div>
+    </SceneProvider>
+  );
 }

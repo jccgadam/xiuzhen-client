@@ -18,3 +18,4 @@ npm run build
 ```
 
 输出到 `dist/`。部署时设置 `VITE_API_URL` 为后端地址（如 `https://api.example.com`），否则使用相对路径（同源部署时可用）。
+# xiuzhen-client

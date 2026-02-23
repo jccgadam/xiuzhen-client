@@ -1,275 +1,287 @@
 /* =========================================================
-   SystemScreen — Stone Wall / Scroll Style (mobile-first)
-   Goal: less "app modal", more "inner-vision scroll on stone"
+   SystemScreen — stable layout (single source of truth)
+   - one-pane: right full screen
+   - two-pane: left + right split (landscape)
+   - only .sys-pane-scroll scrolls
    ========================================================= */
 
-.sys-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  display: grid;
-  place-items: stretch;
-
-  opacity: 0;
-  transform: scale(1.03);
-  pointer-events: none;
-  transition: opacity 280ms ease, transform 320ms ease;
-}
-
-.sys-screen.is-open {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-}
-
-.sys-veil {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(120% 90% at 50% 30%, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.46) 60%, rgba(0, 0, 0, 0.72) 100%),
-    rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-}
-
-.sys-shell {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-
-  background:
-    radial-gradient(120% 100% at 18% 12%, rgba(236, 232, 222, 0.06) 0%, rgba(236, 232, 222, 0) 58%),
-    radial-gradient(120% 100% at 82% 18%, rgba(180, 220, 255, 0.05) 0%, rgba(180, 220, 255, 0) 62%),
-    linear-gradient(180deg, rgba(7, 14, 20, 0.72) 0%, rgba(7, 14, 20, 0.62) 40%, rgba(7, 14, 20, 0.74) 100%);
-
-  background-blend-mode: screen, screen, normal;
-
-  border: 1px solid rgba(236, 232, 222, 0.07);
-  box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.6),
-    inset 0 0 0 1px rgba(236, 232, 222, 0.04),
-    inset 0 -22px 42px rgba(0, 0, 0, 0.26);
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.sys-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(120% 90% at 50% 35%, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.34) 62%, rgba(0, 0, 0, 0.68) 100%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.01) 0px, rgba(255, 255, 255, 0.01) 1px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 4px);
-  opacity: 0.9;
-}
-
-/* =========================================================
-   Top bar (inscription header)
-   ========================================================= */
-
-.sys-topbar {
-  height: 52px;
-  padding: 0 12px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  background:
-    linear-gradient(180deg, rgba(7, 14, 20, 0.28) 0%, rgba(7, 14, 20, 0.04) 100%);
-  border-bottom: 1px solid rgba(236, 232, 222, 0.06);
-}
-
-.sys-close {
-  height: 32px;
-  width: 32px;
-  opacity: 0.6;
-  border-radius: 999px;
-
-  border: 1px solid rgba(236, 232, 222, 0.1);
-  background: rgba(236, 232, 222, 0.04);
-  color: rgba(236, 232, 222, 0.8);
-
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
-  box-shadow:
-    0 10px 20px rgba(0, 0, 0, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-
-  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
-}
-
-.sys-close:active {
-  transform: translateY(1px) scale(0.99);
-  background: rgba(236, 232, 222, 0.06);
-  border-color: rgba(236, 232, 222, 0.14);
-}
-
-/* =========================================================
-   Layout
-   ========================================================= */
-
-.sys-layout {
-  height: calc(100% - 52px);
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sys-pane {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sys-pane-right {
-  position: relative;
-}
-
-.sys-pane-right::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-
-  background:
-    radial-gradient(
-      120% 100% at 70% 20%,
-      rgba(180, 220, 255, 0.05),
-      rgba(0, 0, 0, 0) 60%
-    );
-}
-
-.sys-pane-head {
-  padding: 14px 14px 10px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.sys-pane-head-right {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.sys-pane-title {
-  display: inline-block;
-  color: rgba(236, 232, 222, 0.88);
-  font-weight: 650;
-  letter-spacing: 0.55px;
-  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.55);
-
-  position: relative;
-  padding-bottom: 6px;
-}
-
-.sys-pane-title::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 2px;
-  border-radius: 99px;
-  background: linear-gradient(to right, rgba(180, 220, 255, 0), rgba(180, 220, 255, 0.45), rgba(180, 220, 255, 0));
-  opacity: 0.85;
-}
-
-.sys-pane-body {
-  min-height: 0;
-  overflow: auto;
-  padding: 0 14px 14px;
-}
-
-/* =========================================================
-   Tabs — inscription text style
-   ========================================================= */
-
-.sys-tabs {
-  display: inline-flex;
-  align-items: center;
-  gap: 18px;
-  padding-right: 4px;
-}
-
-.sys-tab {
-  height: 30px;
-  padding: 0 4px;
-
-  border: none;
-  background: transparent;
-
-  color: rgba(236, 232, 222, 0.88);
-  letter-spacing: 1.2px;
-  font-size: 14px;
-  font-weight: 520;
-
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-
-  opacity: 0.6;
-  transition: opacity 200ms ease, text-shadow 200ms ease;
-}
-
-.sys-tab:active {
-  transform: translateY(1px);
-}
-
-.sys-tab.is-active {
-  opacity: 0.95;
-  text-shadow:
-    0 0 18px rgba(180, 220, 255, 0.45),
-    0 0 8px rgba(255, 235, 200, 0.15);
-}
-
-/* =========================================================
-   Landscape split (stone seam)
-   ========================================================= */
-
-@media (orientation: landscape) {
+   .sys-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.02);
+    transition: opacity 260ms ease, transform 320ms ease;
+  }
+  
+  .sys-screen.is-open {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  
+  .sys-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.46) 60%, rgba(0,0,0,0.72) 100%),
+      rgba(0,0,0,0.18);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+  }
+  
+  .sys-shell {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  
+    background:
+      radial-gradient(120% 100% at 18% 12%, rgba(236,232,222,0.06) 0%, rgba(236,232,222,0) 58%),
+      radial-gradient(120% 100% at 82% 18%, rgba(180,220,255,0.05) 0%, rgba(180,220,255,0) 62%),
+      linear-gradient(180deg, rgba(7,14,20,0.72) 0%, rgba(7,14,20,0.62) 40%, rgba(7,14,20,0.74) 100%);
+    background-blend-mode: screen, screen, normal;
+  
+    border: 1px solid rgba(236,232,222,0.07);
+    box-shadow:
+      0 18px 50px rgba(0,0,0,0.6),
+      inset 0 0 0 1px rgba(236,232,222,0.04),
+      inset 0 -22px 42px rgba(0,0,0,0.26);
+  }
+  
+  .sys-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 50% 35%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.34) 62%, rgba(0,0,0,0.68) 100%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 4px);
+    opacity: 0.9;
+  }
+  
+  /* ====================== Topbar ====================== */
+  
+  .sys-topbar {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+    height: 56px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    background: linear-gradient(180deg, rgba(7,14,20,0.28) 0%, rgba(7,14,20,0.04) 100%);
+    border-bottom: 1px solid rgba(236,232,222,0.06);
+  }
+  
+  .sys-topbar-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  
+  .sys-topbar-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .sys-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .sys-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(236,232,222,0.10);
+    background: rgba(236,232,222,0.04);
+    color: rgba(236,232,222,0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      0 10px 20px rgba(0,0,0,0.40),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+    user-select: none;
+    touch-action: manipulation;
+  }
+  
+  .sys-icon:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  
+  .sys-icon.is-active {
+    border-color: rgba(180,220,255,0.35);
+    box-shadow:
+      0 10px 20px rgba(0,0,0,0.40),
+      0 0 18px rgba(180,220,255,0.18),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+  }
+  
+  .sys-icon-glyph {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateY(-1px);
+  }
+  
+  .sys-close {
+    height: 40px;
+    width: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(236,232,222,0.10);
+    background: rgba(236,232,222,0.04);
+    color: rgba(236,232,222,0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      0 10px 20px rgba(0,0,0,0.40),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+    user-select: none;
+    touch-action: manipulation;
+  }
+  
+  .sys-close:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  
+  /* ====================== Layout ====================== */
+  
   .sys-layout {
-    flex-direction: row;
-  }
-
-  .sys-pane-left {
-    flex: 0 0 38%;
-    max-width: 460px;
-  }
-
-  .sys-pane-right {
+    position: relative;
+    z-index: 1;
     flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  
+    padding: 12px;
+    display: grid;
+    gap: 12px;
   }
+  
+  /* one-pane: 只有一个面板，填满 */
+  .sys-layout.one-pane {
+    grid-template-columns: 1fr;
+  }
+  
+  /* two-pane: 左右两栏（横屏默认） */
+  .sys-layout.two-pane {
+    grid-template-columns: minmax(280px, 420px) 1fr;
+  }
+  
+  .sys-pane {
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(236,232,222,0.06);
+    background: rgba(0,0,0,0.06);
+  }
+  
+  .sys-pane-full {
+    grid-column: 1 / -1;
+  }
+  
+  .sys-pane-scroll {
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px;
+  }
+  
+  /* 右侧可有一点冷光 */
+  .sys-pane-right {
+    position: relative;
+  }
+  .sys-pane-right::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 100% at 70% 20%, rgba(180,220,255,0.05), rgba(0,0,0,0) 60%);
+  }
+  
+  /* ====================== Responsiveness ====================== */
+  
+  /* 竖屏：强制 one-pane（避免人物栏挤爆） */
+  @media (orientation: portrait) {
+    .sys-layout.two-pane {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* 很窄：padding/间距缩小 */
+  @media (max-width: 560px) {
+    .sys-layout {
+      padding: 10px;
+      gap: 10px;
+    }
+    .sys-pane-scroll {
+      padding: 12px;
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .sys-screen {
+      transition: none;
+    }
+    .sys-icon,
+    .sys-close {
+      transition: none;
+    }
+  }
+
+  /* ===============================
+   Readability patch (覆盖用)
+   =============================== */
+
+/* 1) 全局文字：别再用太低 opacity */
+.sys-shell,
+.sys-shell * {
+  color: rgba(236, 232, 222, 0.92);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.65);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sys-close,
-  .sys-tab {
-    transition: none;
-  }
+/* 2) 面板内容区加“读字底”：深一点、玻璃一点 */
+.sys-pane {
+  background: rgba(0, 0, 0, 0.28);              /* ✅ 比你现在更深 */
+  border-color: rgba(236, 232, 222, 0.10);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
-/* 左侧人物区：石壁浮光，不再像卡片 */
-.scroll-card {
-  padding: 16px 18px;
-  border-radius: 18px;
-
+/* 让滚动内容区域再加一层局部遮罩，专门护字 */
+.sys-pane-scroll {
   background:
-    radial-gradient(
-      140% 120% at 20% 10%,
-      rgba(236, 232, 222, 0.06),
-      rgba(236, 232, 222, 0.02) 40%,
-      rgba(0, 0, 0, 0) 70%
-    );
+    radial-gradient(120% 120% at 40% 20%, rgba(0,0,0,0.25), rgba(0,0,0,0.55) 70%),
+    rgba(0,0,0,0.18);
+  border-radius: 16px;
+}
 
-  border: none;
-  box-shadow: none;
+/* 3) 把 sys-shell 的顶层噪点/冷光压弱（现在太抢） */
+.sys-shell::after {
+  opacity: 0.55;   /* 你原来 0.9，字会直接被吃掉 */
+}
+
+/* 4) 专门把“弱提示文字”统一一下：别灰到看不见 */
+.sys-empty-sub,
+.tech-sub,
+.tech-pct,
+.tech-hint-line.dim {
+  color: rgba(236, 232, 222, 0.72);
+}
+
+/* 5) 如果你面板里还手写了 opacity:0.7 之类，建议改为这个类 */
+.sys-dim {
+  color: rgba(236, 232, 222, 0.75);
 }
